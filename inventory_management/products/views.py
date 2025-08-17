@@ -3,7 +3,7 @@ from .models import Product, Category
 from rest_framework import generics, filters
 from rest_framework.permissions import IsAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend
-from django.db.models import Q, F
+from django.db.models import F
 
 # Create your views here.
 class ProductListCreateView(generics.ListCreateAPIView):
@@ -26,8 +26,8 @@ class ProductListCreateView(generics.ListCreateAPIView):
             queryset = queryset.filter(current_stock__lte=F('minimum_stock'))
         return queryset
     
-    def perform_create(self, serializers):
-        serializers.save(user=self.request.user)
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
         
 class ProductDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Product.objects.all()
@@ -35,8 +35,8 @@ class ProductDetailView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAuthenticated]
     
     
-class CategoryListCreateView(generics.ListCreateView):
-    queryset = Category.object.all()
+class CategoryListCreateView(generics.ListCreateAPIView):
+    queryset = Category.objects.all()
     serializer_class = CategorySerializer
     permission_classes = [IsAuthenticated]
     

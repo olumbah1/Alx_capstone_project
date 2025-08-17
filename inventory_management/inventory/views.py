@@ -1,9 +1,9 @@
-from .serialzer import StockMovementSerializer
-from product.models import Product
+from .serializers import StockMovementSerializer
+from products.models import Product
 from .models import StockMovement
 from rest_framework import generics,filters
 from rest_framework.permissions import IsAuthenticated
-from django_filters import DjangoFilterBackend
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.response import Response
 from django.db.models import F, Sum
 
@@ -12,13 +12,13 @@ from django.db.models import F, Sum
 class StockMovementListCreateView(generics.ListCreateAPIView):
     queryset = StockMovement.objects.all()
     serializer_class = StockMovementSerializer
-    permission_class = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     filter_backends = [
            DjangoFilterBackend,
            filters.SearchFilter,    
     ]
-    filter_fields = ['product', 'movement_type']
-    search_fields = ['prdouct__name', 'reason']
+    filterset_fields = ['product', 'movement_type']
+    search_fields = ['product__name', 'reason']
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
@@ -28,7 +28,7 @@ class StockMovementDetailView(generics.RetrieveUpdateDestroyAPIView):
         serializer_class = StockMovementSerializer
         permission_classes = [IsAuthenticated]
             
-class InventorySummaryView(generics.GenericsAPIView):
+class InventorySummaryView(generics.GenericAPIView):
     def get(self, request):
         total_products = Product.object.count() # count Products
         

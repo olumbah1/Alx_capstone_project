@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'products',
     'inventory',
+    'accounts',
     'django_filters',
 ]
 
@@ -131,4 +132,8 @@ REST_FRAMEWORK = {
         'rest_framework.filters.SearchFilter',
         'rest_framework.filters.OrderingFilter',
     ],
+     'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.BasicAuthentication',  # or TokenAuthentication
+        'rest_framework.authentication.SessionAuthentication',
+    ),
 }
