@@ -4,8 +4,8 @@ from .models import StockMovement
 class StockMovementSerializer(serializers.ModelSerializer):
     class Meta:
         model = StockMovement
-        fields = ['id','user','movement_type','created_at','reason','quantity','product']
-        read_only_fields = ['id','user','created_at']
+        fields = ['id','created_by','movement_type','created_at','reason','quantity','product']
+        read_only_fields = ['id','created_by','created_at']
         
         def validate_quantity(self,value):
             if value < 0:

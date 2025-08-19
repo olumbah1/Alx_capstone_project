@@ -42,7 +42,7 @@ class UserLoginView(generics.GenericAPIView):
         def post(self, request):
             serializer = self.get_serializer(data=request.data)
             if serializer.is_valid():
-                user = serializer.Validated_data['user']
+                user = serializer.validated_data['user']
                 # Get or create token
                 token, created = Token.objects.get_or_create(user=user)
                 

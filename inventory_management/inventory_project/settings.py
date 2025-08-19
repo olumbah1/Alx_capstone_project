@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'inventory',
     'accounts',
     'django_filters',
+    'rest_framework.authtoken'
 ]
 
 MIDDLEWARE = [
@@ -132,8 +133,13 @@ REST_FRAMEWORK = {
         'rest_framework.filters.SearchFilter',
         'rest_framework.filters.OrderingFilter',
     ],
-     'DEFAULT_AUTHENTICATION_CLASSES': (
+    'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.BasicAuthentication',  # or TokenAuthentication
         'rest_framework.authentication.SessionAuthentication',
-    ),
+        'rest_framework.authentication.TokenAuthentication',
+    ],
+     
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
 }
