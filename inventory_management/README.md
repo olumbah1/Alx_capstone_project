@@ -54,3 +54,49 @@ GET  /sales/dashboard/           - Get sales statistics
 # ⚙️ CI/CD Pipeline
 
 CI/CD (Continuous Integration and Continuous Deployment) pipelines automate testing, building, and deploying the application with every code change. This improves code quality, reduces manual errors, and speeds up development. Tools like GitHub Actions can be used to run tests and deploy the app automatically. Docker may also be used to ensure consistent environments across development and production.
+
+Register [POST]
+link: http://127.0.0.1:8001/accounts/register/
+{
+"username":"John",
+"email":"john@gmail.com",
+"password":"john1234",
+"password_confirm":"john1234"
+}
+
+
+login: [POST]
+ http://127.0.0.1:8001/accounts/login/
+{
+    "username":"Peter",
+    "password":"peter1234"
+}
+
+Authorization
+token
+
+products: [GET]
+link: http://127.0.0.1:8001/products/
+
+
+category:
+link: http://127.0.0.1:8001/products/categories/
+
+
+sales LIST [GET]
+link: http://127.0.0.1:8001/sales/
+
+Customers list [GET]
+link: http://127.0.0.1:8001/customers/
+
+customer Details [GET]
+http://127.0.0.1:8001/customers/1/
+
+Inventory List [GET]
+link: http://127.0.0.1:8001/inventory/movements/
+
+Summary [GET]
+link: http://127.0.0.1:8001/inventory/summary/
+
+Dashboard [GET]
+link: http://127.0.0.1:8001/dashboard/

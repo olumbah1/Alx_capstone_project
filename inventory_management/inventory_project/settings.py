@@ -13,7 +13,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 from pathlib import Path
 import os
 from decouple import config
-import dj_database_url
+# import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -171,25 +171,25 @@ REST_FRAMEWORK = {
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-if not DEBUG:
-    # XSS Protection
-    SECURE_BROWSER_XSS_FILTER = True
+# if not DEBUG:
+#     # XSS Protection
+#     SECURE_BROWSER_XSS_FILTER = True
     
-    # Prevent framing (clickjacking protection)
-    X_FRAME_OPTIONS = 'DENY'
+#     # Prevent framing (clickjacking protection)
+#     X_FRAME_OPTIONS = 'DENY'
     
-    # Prevent MIME type sniffing
-    SECURE_CONTENT_TYPE_NOSNIFF = True
+#     # Prevent MIME type sniffing
+#     SECURE_CONTENT_TYPE_NOSNIFF = True
     
-    # Force HTTPS redirect
-    SECURE_SSL_REDIRECT = True
+#     # Force HTTPS redirect
+#     SECURE_SSL_REDIRECT = True
     
-    # Additional security settings
-    SECURE_HSTS_SECONDS = 31536000  # 1 year
-    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-    SECURE_HSTS_PRELOAD = True
+#     # Additional security settings
+#     SECURE_HSTS_SECONDS = 31536000  # 1 year
+#     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+#     SECURE_HSTS_PRELOAD = True
     
-    # Secure cookies
-    SESSION_COOKIE_SECURE = True
-    CSRF_COOKIE_SECURE = True
+#     # Secure cookies
+#     SESSION_COOKIE_SECURE = True
+#     CSRF_COOKIE_SECURE = True
     

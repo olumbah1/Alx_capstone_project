@@ -37,7 +37,7 @@ class SaleCreateView(generics.CreateAPIView):
     serializer_class = SaleCreateSerializer
     
     def perform_create(self, serializer):
-        # 🔒 Use transaction to ensure data consistency
+        #  Use transaction to ensure data consistency
         with transaction.atomic():
             serializer.save(created_by=self.request.user)
 

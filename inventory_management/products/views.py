@@ -1,5 +1,5 @@
 from .serializers import ProductSerializer, CategorySerializer
-from .models import Product, Category
+from .models import Product, Category, User
 from rest_framework import generics, filters
 from rest_framework.permissions import IsAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend

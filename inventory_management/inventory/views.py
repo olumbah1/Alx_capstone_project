@@ -28,27 +28,28 @@ class StockMovementDetailView(generics.RetrieveUpdateDestroyAPIView):
         serializer_class = StockMovementSerializer
         permission_classes = [IsAuthenticated]
             
+
 class InventorySummaryView(generics.GenericAPIView):
     def get(self, request):
-        total_products = Product.object.count() # count Products
-        
-        total_stock = Product.objects.aggregate(Sum('current_stock')) ['current_stock_sum'] or 0
-        
-        # Count low stock products
+        total_products = Product.objects.count()
+
+        total_stock = Product.objects.aggregate(
+            total=Sum('quantity')
+        )['total'] or 0
+
         low_stock_count = Product.objects.filter(
-            current_stock__lte=F('minimum_stock')
+            quantity__lte=F('low_stock_threshold')
         ).count()
-        
-        # Count movements
+
         total_movements = StockMovement.objects.count()
-        
+
         return Response({
             'total_products': total_products,
             'total_stock_items': total_stock,
             'low_stock_products': low_stock_count,
             'total_movements': total_movements
         })
-    
+
 class LowStockProductsView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
     
