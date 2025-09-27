@@ -1,9 +1,18 @@
 from rest_framework import generics, status
-from .serializers import UserLoginSerializer, UserRegistrationSerializer, UserProfileSerializer, ChangePasswordSerializer
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.contrib.auth.models import User
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import urlsafe_base64_decode
+from django.utils.encoding import force_str
+from .serializers import (UserLoginSerializer,
+                          UserRegistrationSerializer,
+                          UserProfileSerializer,
+                          ChangePasswordSerializer,
+                          ForgotPasswordSerializer,
+                          ResetPasswordSerializer,
+                          )
 
 class UserRegistrationView(generics.CreateAPIView):
     queryset = User.objects.all()
@@ -123,3 +132,71 @@ class ChangePasswordView(generics.GenericAPIView):
                 'message': 'Password changed successfully'
             }, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class ForgotPasswordView(generics.GenericAPIView):
+    """Send password reset email"""
+    serializer_class = ForgotPasswordSerializer
+    permission_classes = [AllowAny]
+    
+    def post(self, request):
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({
+                'message': 'Password reset email sent. Please check your inbox.'
+            }, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class ResetPasswordView(generics.GenericAPIView):
+    """Reset password using token"""
+    serializer_class = ResetPasswordSerializer
+    permission_classes = [AllowAny]
+    
+    def post(self, request):
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({
+                'message': 'Password reset successfully. You can now login with your new password.'
+            }, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class ValidateResetTokenView(generics.GenericAPIView):
+    """Validate if reset token is still valid"""
+    permission_classes = [AllowAny]
+    
+    def post(self, request):
+        uid = request.data.get('uid')
+        token = request.data.get('token')
+        
+        if not uid or not token:
+            return Response({
+                'valid': False,
+                'message': 'UID and token are required.'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            user_id = force_str(urlsafe_base64_decode(uid))
+            user = User.objects.get(pk=user_id)
+            
+            if default_token_generator.check_token(user, token):
+                return Response({
+                    'valid': True,
+                    'message': 'Token is valid.',
+                    'user': {
+                        'email': user.email,
+                        'first_name': user.first_name,
+                        'last_name': user.last_name
+                    }
+                })
+            else:
+                return Response({
+                    'valid': False,
+                    'message': 'Token is invalid or expired.'
+                }, status=status.HTTP_400_BAD_REQUEST)
+                
+        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+            return Response({
+                'valid': False,
+                'message': 'Invalid reset link.'
+            }, status=status.HTTP_400_BAD_REQUEST)

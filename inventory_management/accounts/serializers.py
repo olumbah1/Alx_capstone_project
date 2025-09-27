@@ -5,6 +5,11 @@ from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework import serializers
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes, force_str
+from django.core.mail import send_mail
+from django.conf import settings
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, min_length=6)
@@ -131,5 +136,93 @@ class ChangePasswordSerializer(serializers.Serializer):
         user.set_password(self.validated_data['new_password'])
         user.save()
         return user
-    
 
+
+class ForgotPasswordSerializer(serializers.Serializer):
+    email = serializers.EmailField(required=True)
+    
+    def validate_email(self, value):
+        """Check if email exists in database"""
+        if not User.objects.filter(email=value).exists():
+            raise serializers.ValidationError("No user found with this email address.")
+        return value
+    
+    def save(self):
+        """Send password reset email"""
+        email = self.validated_data['email']
+        user = User.objects.get(email=email)
+        
+        # Generate token and uid
+        token = default_token_generator.make_token(user)
+        uid = urlsafe_base64_encode(force_bytes(user.pk))
+        
+        # Create reset URL (adjust domain as needed)
+        domain = getattr(settings, 'FRONTEND_URL', 'http://localhost:8001')
+        reset_url = f"{domain}/reset-password/{uid}/{token}/"
+        
+        # Send email
+        subject = 'Password Reset Request'
+        message = f'''
+Hi {user.first_name or user.username},
+
+You requested a password reset. Click the link below to reset your password:
+
+{reset_url}
+
+This link will expire in 24 hours.
+
+If you didn't request this reset, please ignore this email.
+
+Best regards,
+Your App Team
+        '''
+        
+        send_mail(
+            subject=subject,
+            message=message,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[email],
+            fail_silently=False,
+        )
+        
+        return user
+
+class ResetPasswordSerializer(serializers.Serializer):
+    uid = serializers.CharField(required=True)
+    token = serializers.CharField(required=True)
+    new_password = serializers.CharField(required=True, min_length=6)
+    confirm_password = serializers.CharField(required=True)
+    
+    def validate_new_password(self, value):
+        """Validate new password"""
+        try:
+            validate_password(value)
+        except ValidationError as e:
+            raise serializers.ValidationError(e.messages)
+        return value
+    
+    def validate(self, attrs):
+        """Check if passwords match and validate token"""
+        # Check password match
+        if attrs['new_password'] != attrs['confirm_password']:
+            raise serializers.ValidationError("Passwords do not match.")
+        
+        # Validate token and uid
+        try:
+            uid = force_str(urlsafe_base64_decode(attrs['uid']))
+            user = User.objects.get(pk=uid)
+        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+            raise serializers.ValidationError("Invalid reset link.")
+        
+        if not default_token_generator.check_token(user, attrs['token']):
+            raise serializers.ValidationError("Invalid or expired reset link.")
+        
+        attrs['user'] = user
+        return attrs
+    
+    def save(self):
+        """Reset user password"""
+        user = self.validated_data['user']
+        user.set_password(self.validated_data['new_password'])
+        user.save()
+        return user
