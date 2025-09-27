@@ -18,7 +18,6 @@ class StockMovementSerializer(serializers.ModelSerializer):
             return value
         
         def validate(self,data):
-            # Check if removing more stock than available
             if data['movement_type'] == 'OUT':
                 product = data['product']
                 if product.current_stock < data['quantity']:

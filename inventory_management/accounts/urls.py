@@ -1,5 +1,10 @@
 from django.urls import path
-from .views import UserProfileView, UserLoginView, UserLogoutView, UserRegistrationView
+from .views import (UserProfileView,
+                    UserLoginView, 
+                    UserLogoutView,
+                    UserRegistrationView,
+                    ChangePasswordView
+)
 
 
 urlpatterns = [
@@ -7,4 +12,5 @@ urlpatterns = [
     path('login/', UserLoginView.as_view(), name='user-login'),
     path('logout/', UserLogoutView.as_view(), name='user-logout'),
     path('profile/', UserProfileView.as_view(), name='user-profile'),
+    path('change_password/', ChangePasswordView.as_view(), name="password_change")
 ]

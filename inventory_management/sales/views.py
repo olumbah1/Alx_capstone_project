@@ -11,7 +11,6 @@ from products.models import Product
 
 # Create your views here.
 
-# CUSTOMER VIEWS
 class CustomerListCreateView(generics.ListCreateAPIView):
     queryset = Customer.objects.all()
     serializer_class = CustomerSerializer
@@ -23,7 +22,7 @@ class CustomerDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Customer.objects.all()
     serializer_class = CustomerSerializer
 
-# SALE VIEWS
+
 class SaleListView(generics.ListAPIView):
     queryset = Sale.objects.select_related('customer', 'created_by').prefetch_related('items')
     serializer_class = SaleSerializer
@@ -37,7 +36,6 @@ class SaleCreateView(generics.CreateAPIView):
     serializer_class = SaleCreateSerializer
     
     def perform_create(self, serializer):
-        #  Use transaction to ensure data consistency
         with transaction.atomic():
             serializer.save(created_by=self.request.user)
 
@@ -46,18 +44,15 @@ class SaleDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = SaleSerializer
     
     
-
-# ENHANCED DASHBOARD WITH YOUR PRODUCT DATA
+# Dashboard
 @api_view(['GET'])
 def sales_dashboard(request):
-    """Enhanced dashboard using your Product model features"""
     
-    # Basic sales stats
     total_sales = Sale.objects.count()
     total_revenue = Sale.objects.aggregate(total=Sum('total_amount'))['total'] or 0
     pending_sales = Sale.objects.filter(payment_status='pending').count()
     
-    # STOCK ALERTS - Using your is_low_stock property
+    # STOCK ALERTS
     low_stock_products = []
     for product in Product.objects.all():
         if product.is_low_stock:
@@ -117,16 +112,13 @@ def sales_dashboard(request):
         'recent_sales': recent_sales_data,
     })
 
-# 🔍 PRODUCT SALES ANALYSIS
 @api_view(['GET'])
 def product_sales_analysis(request, product_id):
-    """Analyze sales for a specific product"""
     try:
         product = Product.objects.get(id=product_id)
     except Product.DoesNotExist:
         return Response({'error': 'Product not found'}, status=404)
     
-    # Sales data for this product
     sale_items = SaleItem.objects.filter(product=product)
     
     total_sold = sale_items.aggregate(total=Sum('quantity'))['total'] or 0

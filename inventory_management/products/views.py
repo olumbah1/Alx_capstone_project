@@ -13,7 +13,7 @@ class ProductListCreateView(generics.ListCreateAPIView):
         DjangoFilterBackend,
         filters.SearchFilter,
     ]  
-    filterset_fields = ['category', 'created_by']  # Added created_by for filtering
+    filterset_fields = ['category', 'created_by'] 
     search_fields = ['name', 'description']
     
     def get_queryset(self):
@@ -25,7 +25,7 @@ class ProductListCreateView(generics.ListCreateAPIView):
         return queryset
     
     def perform_create(self, serializer):
-        serializer.save(created_by=self.request.user)  # Now this will work! Automatically set the user who created the product
+        serializer.save(created_by=self.request.user)
         
 class ProductDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Product.objects.all()

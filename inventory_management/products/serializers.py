@@ -18,15 +18,15 @@ class ProductSerializer(serializers.ModelSerializer):
             'description', 
             'quantity', 
             'low_stock_threshold', 
-            'created_by',           # User ID (will be set automatically)
-            'creator_name',         # Full name or username
-            'created_by_username',  # Just the username
+            'created_by',           
+            'creator_name',         
+            'created_by_username',  
             'created_at', 
             'updated_at'
         ]
         read_only_fields = [
             'id', 
-            'created_by',           # User can't manually set this
+            'created_by',           
             'creator_name',
             'created_by_username', 
             'created_at', 
